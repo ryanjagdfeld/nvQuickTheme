@@ -27,41 +27,57 @@ const paths = {
   projectdetails: {
     src: './project-details.json'
   },
+  skins: {
+    src: './*.ascx',
+    site: '../../Website/Portals/_default/skins/' + project + '/'
+  },
+  partials: {
+    src: './partials/*',
+    site: '../../Website/Portals/_default/skins/' + project + '/partials/'
+  },
   fonts: {
     src: './src/fonts/*',
-    dest: './dist/fonts/'
+    dest: './dist/fonts/',
+    site: '../../Website/Portals/_default/skins/' + project + '/fonts/'
   },
   faFonts: {
     src: './node_modules/@fortawesome/fontawesome-free/webfonts/*',
-    dest: './dist/webfonts/'
+    dest: './dist/webfonts/',
+    site: '../../Website/Portals/_default/skins/' + project + '/webfonts/'
   },
   faCss: {
     src: './node_modules/@fortawesome/fontawesome-free/css/all.min.css',
-    dest: './dist/css/'
+    dest: './dist/css/',
+    site: '../../Website/Portals/_default/skins/' + project + '/css/'
   },
   normalize: {
     src: './node_modules/normalize.css/normalize.css',
-    dest: './dist/css/'
+    dest: './dist/css/',
+    site: '../../Website/Portals/_default/skins/' + project + '/css/'
   },
   bsJs: {
     src: './node_modules/bootstrap/dist/js/bootstrap.bundle.min.*',
-    dest: './dist/js/'
+    dest: './dist/js/',
+    site: '../../Website/Portals/_default/skins/' + project + '/js/'
   },
   images: {
     src: './src/images/**/*.{jpg,jpeg,png,gif,svg,webp}',
-    dest: './dist/images/'
+    dest: './dist/images/',
+    site: '../../Website/Portals/_default/skins/' + project + '/images/'
   },
   styles: {
     src: './src/scss/**/*.scss',
-    dest: './dist/css/'
+    dest: './dist/css/',
+    site: '../../Website/Portals/_default/skins/' + project + '/css/'
   },
   scripts: {
     src: './src/js/*.js',
-    dest: './dist/js/'
+    dest: './dist/js/',
+    site: '../../Website/Portals/_default/skins/' + project + '/js/'
   },
   containers: {
     src: './containers/*',
-    dest: '../../Containers/'+project+'/'
+    dest: '../../Website/Portals/_default/containers/' + project + '/'
   },
   manifest: {
     src: './manifest.dnn',
@@ -104,6 +120,7 @@ function fontsInit() {
   let nSrc=0;
   return gulp.src(paths.fonts.src)
     .pipe(gulp.dest(paths.fonts.dest))
+    .pipe(gulp.dest(paths.fonts.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'font files distributed!');
@@ -115,6 +132,7 @@ function faFontsInit() {
   let nSrc=0;
   return gulp.src(paths.faFonts.src)
     .pipe(gulp.dest(paths.faFonts.dest))
+    .pipe(gulp.dest(paths.faFonts.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'FontAwesome files distributed!');
@@ -126,6 +144,7 @@ function faCssInit() {
   let nSrc=0;
   return gulp.src(paths.faCss.src)
     .pipe(gulp.dest(paths.faCss.dest))
+    .pipe(gulp.dest(paths.faFonts.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'CSS files distributed!');
@@ -141,6 +160,7 @@ function normalizeInit() {
   .pipe(rename({suffix: '.min'}))
   .pipe(autoprefixer())
   .pipe(gulp.dest(paths.normalize.dest, { sourcemaps: '.' }))
+  .pipe(gulp.dest(paths.normalize.site, { sourcemaps: '.' }))
   .on('data', function() { nSrc+=1; })
   .on('end', function() {
     log(nSrc, 'normalize files distributed!');
@@ -152,6 +172,7 @@ function bsJsInit() {
   let nSrc=0;
   return gulp.src(paths.bsJs.src)
     .pipe(gulp.dest(paths.bsJs.dest))
+    .pipe(gulp.dest(paths.bsJs.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'Bootstrap JS files distributed!');
@@ -173,6 +194,7 @@ function modernizrInit() {
     .pipe(uglify())
     .pipe(rename({suffix: '-custom.min'}))
     .pipe(gulp.dest(paths.scripts.dest))
+    .pipe(gulp.dest(paths.scripts.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'modernizr files distributed!');
@@ -206,6 +228,7 @@ function optimize() {
       }
     ))
 		.pipe(gulp.dest(paths.images.dest))
+    .pipe(gulp.dest(paths.images.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'images optimized!');
@@ -218,6 +241,7 @@ function convert() {
   return gulp.src(paths.images.src, {since: gulp.lastRun(images)})
     .pipe(webp())
     .pipe(gulp.dest(paths.images.dest))
+    .pipe(gulp.dest(paths.images.site))
     .on('data', function() { nSrc+=1; })
     .on('end', function() {
       log(nSrc, 'webp files created!');
@@ -240,6 +264,7 @@ function styles() {
   .pipe(rename({suffix: '.min'}))
   .pipe(autoprefixer())
   .pipe(gulp.dest(paths.styles.dest, { sourcemaps: '.' }))
+  .pipe(gulp.dest(paths.styles.site, { sourcemaps: '.' }))
   .on('end', function() {
     log('SCSS compiled, minified, and distributed!');
   })
@@ -259,6 +284,7 @@ function scripts() {
     .pipe(uglify())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest(paths.scripts.dest, { sourcemaps: '.' }))
+    .pipe(gulp.dest(paths.scripts.site, { sourcemaps: '.' }))
     .pipe(jshint.reporter('default'))
     .pipe(jshint.reporter('fail'))
     .on('end', function() {
@@ -282,6 +308,29 @@ function containers() {
     .on('end', function() {
       log(nSrc, 'container files distributed!');
     })
+}
+
+// Copy skins from src/ to dist/
+function skins() {
+  let nSrc=0;
+  return gulp.src(paths.skins.src)
+    .pipe(gulp.dest(paths.skins.site))
+    .on('data', function() { nSrc+=1; })
+    .on('end', function() {
+      log(nSrc, 'skin files distributed!');
+    })
+}
+
+// Copy partials from src/partials to dist/partials
+function partials() {
+  let nSrc=0;
+  return gulp.src(paths.partials.src)
+  .pipe(replace('dist/', ''))
+  .pipe(gulp.dest(paths.partials.site))
+  .on('data', function() { nSrc+=1; })
+  .on('end', function() {
+    log(nSrc, 'partial files distributed!');
+  })
 }
 
 // Update manifest.dnn
@@ -396,6 +445,8 @@ function serve() {
   bs.init({
       proxy: "nvQuickTheme.loc"
   });
+  gulp.watch(paths.partials.src, partials).on('change', bs.reload);
+  gulp.watch(paths.skins.src, skins).on('change', bs.reload);
   gulp.watch(paths.images.src, images).on('change', bs.reload);
   gulp.watch(paths.styles.src, styles).on('change', bs.reload);
   gulp.watch(paths.scripts.src, scripts).on('change', bs.reload);
@@ -404,6 +455,8 @@ function serve() {
 
 // gulp watch
 function watch() {
+  gulp.watch(paths.partials.src, partials);
+  gulp.watch(paths.skins.src, skins);
   gulp.watch(paths.images.src, images);
   gulp.watch(paths.styles.src, styles);
   gulp.watch(paths.scripts.src, scripts);
